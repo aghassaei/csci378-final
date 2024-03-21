@@ -10,6 +10,7 @@ class Game(player1, player2):
         self.board = np.ones(14) * 4
         self.player1 = player1
         self.player2 = player2
+        self.log
     
     def move(self, i, player):
         # if legal
@@ -23,7 +24,7 @@ class Game(player1, player2):
         # if self.board[i] is your mancala, go again
     def capture(i):
         # here i is where you landed
-        # adj side
-        # pieces added to your side
+        # adj side cleared
+        # pieces added to your 
         pass
 
