@@ -1,44 +1,91 @@
 import numpy as np
 
-
-class Player(i):
-    def __init__(self, i):
-        self.legal = range(6) if i == 1 else range(6,12)
-        self.store = 0
+### MANCALA ####
 
 
-class Board():
-    def __init__(self, side1 = np.ones(6) * 4, side2 = np.ones(6) * 4):
-        self.side1 = side1
-        self.side2 = side2
-        self.store1 = 0
-        self.store2 = 0
-        self.player = True
+# Returns cup index on opposite side of the board
+def adj_cup(n):
+    return 12 - n
 
-class Game():
-    def __init__(self, player1, player2):
-        self.board = Board()
-        self.player1 = Player(1)
-        self.player2 = Player(2)
-        self.log
+
+class Game:
+    def __init__(self):
+        self.board = [4,4,4,4,4,4,0,4,4,4,4,4,4,0]
+        self.log = []
+        self.player1 = True
+        self.state = None
+        self.count = 0
+        self.rng = np.random.default_rng()
+        self.limit = 200 
+
+    @staticmethod
+    def format(x):
+        if x<10: 
+            return "0" + str(x)
+        return str(x)
     
-    def move(self, i, player):
-        # if legal
-        pieces = self.board[i]
-        self.board[i]
-        while pieces > 0:
-            # if wrong mancala, continue
-            self.board[i] += 1
-            i += 1
-        # if self.board[i] == 1: try to capture
-        # if self.board[i] is your mancala, go again
+    def view(self):
+        output = " -----------------------------------\n|  |"
+        for i in range(12,6, -1): 
+            output.join([" ", format(self.board[i]), " |"])
+        
+        output.join(["|  |\n"])
+
+        for i in range(6): 
+            output.join([" ", format(self.board[i]), " |"])
+
+        print("Scoreboard") # TODO
+        print(output)
+        return None
+    
+    def move(self, i):
+        if self.in_bounds(i) and self.not_empty(i):
+            pieces = self.board[i]
+            self.board[i] = 0
+            idx = i
+            while pieces > 0:
+                if (self.player1 and idx == 13) or (not self.player1 and idx == 6):
+                    continue
+                self.board[idx] += 1
+                idx += 1
+            if (self.player1 and idx == 13) or (not self.player1 and idx == 6):
+                # go again
+                pass
+
+            if self.board[idx] == 1 and self.in_bounds(i): 
+                self.capture(adj_cup(idx))
+        self.player = not self.player
     def capture(i):
-        # here i is where you landed
-        # adj side cleared
-        # pieces added to your 
+        pieces = self.board[i]
+        self.board[i] = 0
+        if self.player1:
+            self.board[6] += pieces
+        else:
+            self.board[13] += pieces
+        return 
+    
+    def in_bounds(self, i):
+        rightside_1 = self.player1 and i in range(6)
+        rightside_2 = not self.player1 and i in range(7,13)
+        stores = (i == 6) or (i == 13)
+        return rightside_1 and rightside_2 and not stores
+    
+    def not_empty(self, i):
+        return (self.player == 0 and self.board.side0[i] > 0) or (self.player == 1 and self.board.side1[i] > 0)
+    
+    def end_game(self):
         pass
     
-    # def is_legal(self, i):
-    #     if (self.board.player and i in range(6) or
-    #         not self.board.player and i in range():
-    #         True
+    def play(self):
+        g = Game()
+
+
+    def reset(self, random=True):
+        if random:
+            # reset randomly
+            pass
+
+
+
+    def step(self):
+        pass
