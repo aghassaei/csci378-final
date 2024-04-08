@@ -80,7 +80,7 @@ class GameEnv:
             reward = 1
         else:
             reward = 0
-        return self.state, reward, terminated, truncated, {}
+        return self.state, reward, terminated, truncated
     
 
 
@@ -110,38 +110,40 @@ class GameEnv:
         print(output)
         return None
     
-    # def move(self, i):
-    #     if self.in_bounds(i) and self.not_empty(i):
-    #         pieces = self.self.state[i]
-    #         self.self.state[i] = 0
-    #         idx = i
-    #         while pieces > 0:
-    #             if (self.player1 and idx == 13) or (not self.player1 and idx == 6):
-    #                 continue
-    #             self.self.state[idx] += 1
-    #             idx += 1
-    #         if (self.player1 and idx == 13) or (not self.player1 and idx == 6):
-    #             # go again
-    #             pass
-
-    #         if self.self.state[idx] == 1 and self.in_bounds(i): 
-    #             self.capture(adj_cup(idx))
-    #     self.player = not self.player
-
+class DQN(nn.Module):
     
-    # def in_bounds(self, i):
-    #     rightside_1 = self.player1 and i in range(6)
-    #     rightside_2 = not self.player1 and i in range(7,13)
-    #     stores = (i == 6) or (i == 13)
-    #     return rightside_1 and rightside_2 and not stores
-    
-    # def not_empty(self, i):
-    #     return (self.player == 0 and self.self.state.side0[i] > 0) or (self.player == 1 and self.self.state.side1[i] > 0)
-    
-    # def end_game(self):
-    #     pass
-    
-    # def play(self):
-    #     g = Game()
+    def __init__(self, state_dim, num_actions):
+        super().__init__()
+        self.model = nn.Sequential(
+            nn.Linear(state_dim, 20),
+            nn.ReLU(),
+            nn.Linear(20, 20),
+            nn.ReLU(),
+            nn.Linear(20, num_actions)
+        )
 
+    def forward(self, x):
+        return self.model(x)
 
+    def act(self, x):
+        return self(x).argmax()
+    
+
+class ReplayMemory:
+
+    def __init__(self, cap):
+        self.capacity = cap
+        self.data = []
+
+    def push(self, state, action, reward, nstate, term):
+        if len(self.data) < self.capacity:
+            self.data.append((state, action, reward, nstate, term))
+        else:
+            idx = random.randint(0, self.capacity - 1)
+            self.data[idx] = (state, action, reward, nstate, term)
+
+    def sample(self, batch_size):
+        return random.sample(self.data, batch_size)
+
+    def __len__(self):
+        return len(self.data)
